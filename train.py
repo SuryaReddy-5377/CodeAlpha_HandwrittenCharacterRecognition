@@ -1,8 +1,18 @@
+"""
+TASK 1: Handwritten Character Recognition
+CodeAlpha Internship
+"""
+
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Load MNIST dataset
+print("="*50)
+print("🖊️ HANDWRITTEN RECOGNITION - TRAINING")
+print("="*50)
+
+# Load dataset
+print("\n📥 Loading MNIST dataset...")
 (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
 
 # Normalize
@@ -13,7 +23,8 @@ x_test = x_test / 255.0
 x_train = x_train.reshape(-1, 28, 28, 1)
 x_test = x_test.reshape(-1, 28, 28, 1)
 
-# Build CNN model
+# Build CNN Model
+print("\n🏗️ Building CNN Model...")
 model = tf.keras.models.Sequential([
     tf.keras.layers.Conv2D(32, (3,3), activation='relu', input_shape=(28,28,1)),
     tf.keras.layers.MaxPooling2D((2,2)),
@@ -21,6 +32,7 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.MaxPooling2D((2,2)),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(64, activation='relu'),
+    tf.keras.layers.Dropout(0.5),
     tf.keras.layers.Dense(10, activation='softmax')
 ])
 
@@ -30,14 +42,21 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 # Train
-print("🚀 Training started...")
-history = model.fit(x_train, y_train, 
-                    epochs=5, 
-                    validation_data=(x_test, y_test))
+print("\n🚀 Training Model...")
+model.fit(x_train, y_train, 
+          epochs=5, 
+          validation_data=(x_test, y_test))
 
-print(f"\n✅ Test Accuracy: {history.history['val_accuracy'][-1] * 100:.2f}%")
+# Evaluate
+test_loss, test_acc = model.evaluate(x_test, y_test, verbose=0)
+print(f"\n✅ Test Accuracy: {test_acc*100:.2f}%")
 
-# Test on 5 images
+# Save model
+model.save('model.h5')
+print("💾 Model saved as 'model.h5'")
+
+# Test on sample images
+print("\n📊 Testing on sample images...")
 predictions = model.predict(x_test[:5])
 for i in range(5):
     plt.figure()
@@ -46,4 +65,4 @@ for i in range(5):
     plt.axis('off')
     plt.show()
 
-print("🎉 Done!")
+print("\n🎉 Training Complete!")
